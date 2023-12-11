@@ -11,8 +11,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>21</maven.compiler.source> <!-- Updated to Java 21 -->
-        <maven.compiler.target>21</maven.compiler.target> <!-- Updated to Java 21 -->
+        <maven.compiler.source>17</maven.compiler.source> <!-- Updated to Java 21 -->
+        <maven.compiler.target>17</maven.compiler.target> <!-- Updated to Java 21 -->
     </properties>
 
     <dependencies>
