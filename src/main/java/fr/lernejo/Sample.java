@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 public class Sample {
 
     public int op(Operation op, int a, int b) {
-        return op.func.apply(a, b);
+        return op.apply(a, b);
     }
 
     public int fact(int n) {
@@ -17,13 +17,17 @@ public class Sample {
 
     enum Operation {
         ADD((a, b) -> a + b),
-        MULT((a, b) -> a * b),
-        ;
+        MULT((a, b) -> a * b);
 
-        final BiFunction<Integer, Integer, Integer> func;
+        private final BiFunction<Integer, Integer, Integer> func;
 
         Operation(BiFunction<Integer, Integer, Integer> func) {
             this.func = func;
         }
+
+        public int apply(int a, int b) {
+            return func.apply(a, b);
+        }
     }
 }
+
