@@ -13,7 +13,38 @@ import org.json.simple.parser.ParseException;
 
 public class Launcher {
 
-    // ... Other parts of the Launcher class ...
+    public static void main(String[] args) {
+        int port = Integer.parseInt(args[0]);
+        try {
+            HttpServer server = setupHttpServer(port);
+            server.start();
+            System.out.println("Server started on port " + port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static HttpServer setupHttpServer(int port) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.setExecutor(Executors.newFixedThreadPool(1));
+        setupPingContext(server);
+        setupGameStartContext(server, port);
+        return server;
+    }
+
+    private static void setupPingContext(HttpServer server) {
+        server.createContext("/ping", (exchange -> {
+            String response = "OK";
+            exchange.sendResponseHeaders(200, response.length());
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        }));
+    }
+
+    private static void setupGameStartContext(HttpServer server, int port) {
+        server.createContext("/api/game/start", new GameStartHandler(port));
+    }
 
     static class GameStartHandler implements HttpHandler {
         private final int port;
@@ -24,7 +55,18 @@ public class Launcher {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // ... Implementation of handle method ...
+            if (!"POST".equals(exchange.getRequestMethod())) {
+                sendResponse(exchange, 404, "");
+                return;
+            }
+
+            String requestBody = getRequestBody(exchange);
+            if (requestBody == null || !isValidJson(requestBody)) {
+                sendResponse(exchange, 400, ""); // Bad Request for empty or malformed JSON
+                return;
+            }
+
+            sendResponseWithServerDetails(exchange);
         }
 
         private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
