@@ -13,6 +13,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <junit.version>5.9.1</junit.version>
+        <assertj.version>3.23.1</assertj.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -21,6 +25,19 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
+        </dependency>
+        <!-- Add your other dependencies here -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -81,6 +98,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Surefire Plugin for JaCoCo -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version> <!-- Utilisez la version actuelle du plugin -->
+                <configuration>
+                    <argLine>-javaagent:path/to/jacocoagent.jar=destfile=target/jacoco.exec</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>
