@@ -10,9 +10,18 @@ import java.nio.charset.StandardCharsets;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.BodyPublishers;
+import java.net.URI;
 
 public class Launcher {
     public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Usage: java Launcher <port> [adversaryUrl]");
+            return;
+        }
         int port = Integer.parseInt(args[0]);
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -21,6 +30,31 @@ public class Launcher {
             server.createContext("/api/game/start", new GameStartHandler(port));
             server.start();
             System.out.println("Server started on port " + port);
+
+            // Si un URL d'adversaire est fourni, envoyez une requête POST
+            if (args.length > 1) {
+                String adversaryUrl = args[1];
+                sendPostRequestToAdversary(adversaryUrl, port);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Méthode pour envoyer une requête POST à l'URL de l'adversaire
+    private static void sendPostRequestToAdversary(String adversaryUrl, int myPort) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(adversaryUrl + "/api/game/start"))
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .POST(BodyPublishers.ofString("{\"id\":\"1\", \"url\":\"http://localhost:" + myPort + "\", \"message\":\"hello\"}"))
+            .build();
+
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("POST request sent to " + adversaryUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,3 +112,4 @@ public class Launcher {
         }
     }
 }
+
