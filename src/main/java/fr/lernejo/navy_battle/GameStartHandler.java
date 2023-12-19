@@ -1,7 +1,7 @@
 package fr.lernejo.navy_battle;
 
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -50,10 +50,11 @@ public class GameStartHandler implements HttpHandler {
 
     private void sendResponseWithServerDetails(HttpExchange exchange) throws IOException {
         JSONObject responseJson = new JSONObject();
-        responseJson.put("id", "some-id");
-        responseJson.put("url", "http://localhost:" + port);
-        responseJson.put("message", "May the best code win");
-        sendResponse(exchange, 202, responseJson.toJSONString());
+        responseJson.put("id", "some-id"); // Mettez ici l'ID approprié
+        responseJson.put("url", "http://localhost:" + port); // L'URL doit correspondre à l'adresse du serveur
+        responseJson.put("message", "May the best code win"); // Message personnalisable
+
+        String jsonResponse = responseJson.toJSONString();
+        sendResponse(exchange, 202, jsonResponse); // Envoi de la réponse JSON
     }
 }
-

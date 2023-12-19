@@ -1,15 +1,23 @@
 package fr.lernejo.navy_battle;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class Launcher {
-    public static void main(String[] args) {
-        int port = Integer.parseInt(args[0]);
+    private final int port;
+    private final String adversaryUrl;
+
+    public Launcher(int port, String adversaryUrl) {
+        this.port = port;
+        this.adversaryUrl = adversaryUrl;
+    }
+
+    public void startServer() {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
             server.setExecutor(Executors.newFixedThreadPool(1));
@@ -17,9 +25,23 @@ public class Launcher {
             server.createContext("/api/game/start", new GameStartHandler(port));
             server.start();
             System.out.println("Server started on port " + port);
-        } catch (Exception e) {
+
+            if (adversaryUrl != null) {
+                new AdversaryContact(adversaryUrl, port).sendPostRequest();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Usage: java Launcher <port> [adversaryUrl]");
+            return;
+        }
+        int port = Integer.parseInt(args[0]);
+        String adversaryUrl = args.length > 1 ? args[1] : null;
+        new Launcher(port, adversaryUrl).startServer();
     }
 
     static class PingHandler implements HttpHandler {
