@@ -23,6 +23,7 @@ public class Launcher {
             server.setExecutor(Executors.newFixedThreadPool(1));
             server.createContext("/ping", new PingHandler());
             server.createContext("/api/game/start", new GameStartHandler(port));
+            server.createContext("/api/game/fire", new FireHandler()); // Ligne ajoutée pour FireHandler
             server.start();
             System.out.println("Server started on port " + port);
 

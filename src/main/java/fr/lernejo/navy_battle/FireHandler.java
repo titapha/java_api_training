@@ -12,7 +12,7 @@ import java.util.Map;
 import org.json.simple.JSONObject;
 
 public class FireHandler implements HttpHandler {
-    
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!"GET".equals(exchange.getRequestMethod())) {
@@ -82,4 +82,3 @@ public class FireHandler implements HttpHandler {
         }
     }
 }
-
