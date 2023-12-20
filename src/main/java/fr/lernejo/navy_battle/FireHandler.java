@@ -12,7 +12,7 @@ import java.util.Map;
 import org.json.simple.JSONObject;
 
 public class FireHandler implements HttpHandler {
-
+    
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!"GET".equals(exchange.getRequestMethod())) {
@@ -20,21 +20,19 @@ public class FireHandler implements HttpHandler {
             return;
         }
 
-        Map<String, String> queryParams = queryToMap(exchange.getRequestURI());
-        String cell = queryParams.get("cell");
-
+        String cell = getCellParam(exchange.getRequestURI());
         if (cell == null || !isValidCell(cell)) {
-            sendResponse(exchange, 400, ""); // Bad Request for invalid or missing cell parameter
+            sendResponse(exchange, 400, "");
             return;
         }
 
-        JSONObject response = new JSONObject();
-        // Ici, vous devez déterminer le résultat du tir sur la cellule (miss, hit, sunk)
-        // Pour l'exemple, on utilise des valeurs fixes, mais cela devrait dépendre de l'état actuel du jeu
-        response.put("consequence", "miss"); // ou "hit" ou "sunk"
-        response.put("shipLeft", true); // ou false si c'était le dernier bateau
-
+        JSONObject response = buildJsonResponse(cell);
         sendResponse(exchange, 200, response.toJSONString());
+    }
+
+    private String getCellParam(URI uri) {
+        Map<String, String> queryParams = queryToMap(uri);
+        return queryParams.get("cell");
     }
 
     private Map<String, String> queryToMap(URI uri) {
@@ -54,14 +52,31 @@ public class FireHandler implements HttpHandler {
     }
 
     private boolean isValidCell(String cell) {
-        // Vérifiez ici si la cellule est valide (ex. "B2", "J10", etc.)
         return cell.matches("^[A-J](10|[1-9])$");
     }
 
+    private JSONObject buildJsonResponse(String cell) {
+        JSONObject response = new JSONObject();
+        response.put("consequence", determineConsequence(cell)); // Exemple : "miss", "hit", "sunk"
+        response.put("shipLeft", shipsRemaining()); // Exemple : true or false
+        return response;
+    }
+
+    private String determineConsequence(String cell) {
+        // Implémentez la logique pour déterminer le résultat du tir
+        return "miss"; // Exemple
+    }
+
+    private boolean shipsRemaining() {
+        // Implémentez la logique pour déterminer s'il reste des navires
+        return true; // Exemple
+    }
+
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.sendResponseHeaders(statusCode, response.length());
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, response.getBytes(StandardCharsets.UTF_8).length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
+            os.write(response.getBytes(StandardCharsets.UTF_8));
         } finally {
             exchange.close();
         }
